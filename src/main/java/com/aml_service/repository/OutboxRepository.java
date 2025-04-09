@@ -26,9 +26,9 @@ public interface OutboxRepository extends JpaRepository<TransactionOutbox, Strin
 
     @Modifying
     @Query(value = """
-                     DELETE FROM TransactionOutbox o
+                     DELETE FROM transaction_outbox o
                                     WHERE o.status = 'PROCESSED'
-                                      AND o.createdAt < :cutoff
+                                      AND o.created_at < :cutoff
             """, nativeQuery = true)
     int deleteOldProcessed(
             @Param("cutoff") Instant cutoff
