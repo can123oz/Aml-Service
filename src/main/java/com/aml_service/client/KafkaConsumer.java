@@ -24,14 +24,14 @@ public class KafkaConsumer {
         this.service = service;
     }
 
-    @KafkaListener(topics = "${kafka.inbound-topic}", groupId = "${kafka.group-id}")
-    public void listen(String message, Acknowledgment acknowledgment) {
+    @KafkaListener(topics = "${kafka.inbound-topic}", groupId = "${kafka.group-id}", containerFactory = "kafkaListenerContainerFactory")
+    public void listen(Transaction trx, Acknowledgment acknowledgment) {
         try {
-            if (message == null || message.isEmpty()) {
+            if (trx == null) {
                 return;
             }
-            logger.info("{} Message received the process will start: {}", prefix, message);
-            Transaction trx = mapper.readValue(message, Transaction.class);
+
+            logger.info("{} Message received the process will start: {}", prefix, trx);
 
             if (!TransactionType.OUTBOUND.name().equalsIgnoreCase(trx.getType())) {
                 return;
@@ -39,9 +39,9 @@ public class KafkaConsumer {
 
             service.processTransaction(trx);
             acknowledgment.acknowledge();
-            logger.info("{} Logic passed, acknowledgment given for message: {}", prefix, message);
+            logger.info("{} Logic passed, acknowledgment given for message: {}", prefix, trx);
         } catch (Exception e) {
-            logger.error("{} Error, no acknowledgment given for message: {}", prefix, message);
+            logger.error("{} Error, no acknowledgment given for message: {}", prefix, trx);
             throw new RuntimeException(e);
         }
     }
