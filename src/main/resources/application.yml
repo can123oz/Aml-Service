@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: aml-service
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      group-id: my-group-id
+  datasource:
+    url: jdbc:postgresql://localhost:5432/aml-service-db
+    username: amlUser
+    password: amlPassword
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+springdoc:
+  swagger-ui:
+    enabled: true
+
+kafka:
+  host: localhost
+  port: 9092
+  inbound-topic: aml-inbound
+  outbound-topic: aml-outbound
+  bootstrap-servers: localhost:9092
+  group-id: my-group-id

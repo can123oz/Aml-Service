@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: db-aml-service
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: aml-service-db
+      POSTGRES_USER: amlUser
+      POSTGRES_PASSWORD: amlPassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
