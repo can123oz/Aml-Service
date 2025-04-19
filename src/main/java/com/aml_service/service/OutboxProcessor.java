@@ -53,7 +53,7 @@ public class OutboxProcessor {
         outboxRepository.saveAllAndFlush(batch);
     }
 
-    @Scheduled(cron = "0 0 * * * *") // every hour
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void deleteOldProcessedOutbox() {
         int deleted = outboxRepository.deleteOldProcessed(Instant.now().minus(Duration.ofDays(3)));

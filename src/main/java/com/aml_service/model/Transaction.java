@@ -1,6 +1,8 @@
 package com.aml_service.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,9 +21,11 @@ public class Transaction {
     private String type;
 
     @Column(name = "amount")
+    @Min(value = 0)
     private BigDecimal amount;
 
     @Column(name = "currency")
+    @NotNull
     private String currency;
 
     @Column(name = "status")
