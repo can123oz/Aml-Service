@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Component;
 
-import static com.aml_service.model.Constants.PENDING;
-
 @Component
 public class TransactionService {
 
@@ -30,10 +28,7 @@ public class TransactionService {
     @Transactional(timeout = 20)
     public void processTransaction(Transaction transaction) throws JsonProcessingException {
         Transaction trxEntity = transactionRepository.saveAndFlush(transaction);
-        TransactionOutbox outbox = new TransactionOutbox();
-        outbox.setStatus(PENDING);
-        outbox.setEvent(mapper.writeValueAsString(trxEntity));
-        outbox.setTransactionId(trxEntity.getId());
+        TransactionOutbox outbox = new TransactionOutbox(trxEntity.getId(), mapper.writeValueAsString(trxEntity));
 
         outboxRepository.saveAndFlush(outbox);
     }

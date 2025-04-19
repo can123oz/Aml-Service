@@ -42,7 +42,7 @@ public class OutboxProcessor {
         for (TransactionOutbox outbox : batch) {
             try {
                 producer.publish(outbox.getEvent());
-                outbox.setStatus(PROCESSED);
+                outbox.processTransaction();
             } catch (Exception e) {
                 logger.error("{} Failed to publish event {}, exception: {}",
                         prefix, outbox.getId(), e.toString());
