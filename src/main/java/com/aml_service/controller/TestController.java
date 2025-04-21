@@ -2,6 +2,7 @@ package com.aml_service.controller;
 
 import com.aml_service.client.KafkaProducer;
 import com.aml_service.model.Transaction;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,12 +17,7 @@ public class TestController {
         this.messageBus = messageBus;
     }
 
-    @PostMapping("/publish-test")
-    public ResponseEntity<?> publishTest(@RequestBody Transaction transaction) {
-        messageBus.publish(transaction);
-        return ResponseEntity.ok().build();
-    }
-
+    @Operation(summary = "For Local Testing Only", description = "Triggers the kafka consumer.")
     @PostMapping("/consume-test")
     public ResponseEntity<?> consumeTest(@RequestBody Transaction transaction) {
         messageBus.publishTest("aml-inbound", transaction);

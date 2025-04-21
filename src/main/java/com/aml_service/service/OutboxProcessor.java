@@ -5,6 +5,7 @@ import com.aml_service.model.TransactionOutbox;
 import com.aml_service.repository.OutboxRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,12 @@ import static com.aml_service.model.Constants.*;
 
 @Component
 public class OutboxProcessor {
+
+    @Value("${outbox.batch-size}")
+    private int OUTBOX_BATCH_SIZE;
+
+    @Value("${outbox.retention-days}")
+    private int outboxRetentionDays;
 
     final String prefix = "[OutboxProcessor]";
     private final OutboxRepository outboxRepository;
@@ -32,7 +39,7 @@ public class OutboxProcessor {
     @Transactional(timeout = 600)
     @Scheduled(fixedDelay = 20000)
     public void processOutbox() {
-        List<TransactionOutbox> batch = outboxRepository.findAndLockBatch(PENDING, 30);
+        List<TransactionOutbox> batch = outboxRepository.findAndLockBatch(PENDING, OUTBOX_BATCH_SIZE);
         logger.info("{} Processing outbox size: {}", prefix, batch.size());
 
         if (batch.isEmpty()) {
@@ -56,7 +63,7 @@ public class OutboxProcessor {
     @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void deleteOldProcessedOutbox() {
-        int deleted = outboxRepository.deleteOldProcessed(Instant.now().minus(Duration.ofDays(3)));
+        int deleted = outboxRepository.deleteOldProcessed(Instant.now().minus(Duration.ofDays(outboxRetentionDays)));
         logger.info("Deleted {} old processed outbox rows", deleted);
     }
 }
