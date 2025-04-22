@@ -31,6 +31,9 @@ public class TransactionService {
     @Transactional(timeout = 20)
     public void processTransaction(Transaction transaction) {
         try {
+            // Simulate transaction processing with a provider or internal calculation.
+            Thread.sleep(2000);
+
             Transaction trxEntity = transactionRepository.saveAndFlush(transaction);
             TransactionOutbox outbox = new TransactionOutbox(trxEntity.getId(), mapper.writeValueAsString(trxEntity));
 
@@ -39,6 +42,9 @@ public class TransactionService {
             logger.info("{} Processed transaction {}", prefix, trxEntity.getId());
         } catch (JsonProcessingException e) {
             logger.error("{} Failed to serialize transaction {}", prefix, transaction.getId());
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            logger.error("{} Failed to process transaction {}", prefix, transaction.getId());
             throw new RuntimeException(e);
         }
     }
