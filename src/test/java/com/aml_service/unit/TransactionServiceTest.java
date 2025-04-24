@@ -1,7 +1,8 @@
 package com.aml_service.unit;
 
 import com.aml_service.model.Transaction;
-import com.aml_service.model.TransactionOutbox;
+import com.aml_service.model.TransactionEntity;
+import com.aml_service.model.TransactionOutboxEntity;
 import com.aml_service.repository.OutboxRepository;
 import com.aml_service.repository.TransactionRepository;
 import com.aml_service.service.TransactionService;
@@ -15,6 +16,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.math.BigDecimal;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -33,7 +36,7 @@ public class TransactionServiceTest {
     private ObjectMapper mapper;
 
     @Captor
-    private ArgumentCaptor<TransactionOutbox> outboxArgumentCaptor;
+    private ArgumentCaptor<TransactionOutboxEntity> outboxArgumentCaptor;
 
     private TransactionService service;
 
@@ -47,24 +50,25 @@ public class TransactionServiceTest {
     @Test
     public void shouldSuccessfulProcessTransaction() throws JsonProcessingException {
         // Given
-        Transaction model = new Transaction();
-        model.setId("id");
-        Transaction entity = model;
-        String transactionString = "";
-        TransactionOutbox outbox = new TransactionOutbox(model.getId(), transactionString);
+        String id = "123";
+        Transaction model = new Transaction(id, "OUTBOUND", BigDecimal.TEN, "EUR", "PENDING");
+        TransactionEntity entity = model.toEntity();
+        entity.setId(id);
+        String transactionString = entity.toString();
+        TransactionOutboxEntity outbox = new TransactionOutboxEntity(id, transactionString);
 
         // When
-        when(transactionRepository.saveAndFlush(model)).thenReturn(entity);
+        when(transactionRepository.saveAndFlush(any())).thenReturn(entity);
         when(mapper.writeValueAsString(entity)).thenReturn(transactionString);
 
         service.processTransaction(model);
 
         // Then
         verify(outboxRepository, times(1)).saveAndFlush(any());
-        verify(transactionRepository, times(1)).saveAndFlush(model);
+        verify(transactionRepository, times(1)).saveAndFlush(any());
 
         then(outboxRepository).should().saveAndFlush(outboxArgumentCaptor.capture());
-        TransactionOutbox capturedEntity = outboxArgumentCaptor.getValue();
+        TransactionOutboxEntity capturedEntity = outboxArgumentCaptor.getValue();
         assertThat(capturedEntity.getEvent()).isEqualTo(outbox.getEvent());
     }
 
@@ -72,12 +76,12 @@ public class TransactionServiceTest {
     @Test
     public void shouldJsonProcessingException() throws JsonProcessingException {
         // Given
-        Transaction model = new Transaction();
-        model.setId("id");
-        Transaction entity = model;
+        Transaction model = new Transaction("1", "OUTBOUND", BigDecimal.TEN, "EUR", "PENDING");
+        TransactionEntity entity = model.toEntity();
+        entity.setId("id");
 
         // When
-        when(transactionRepository.saveAndFlush(model)).thenReturn(entity);
+        when(transactionRepository.saveAndFlush(entity)).thenReturn(entity);
         when(mapper.writeValueAsString(entity)).thenThrow(JsonProcessingException.class);
 
         assertThatThrownBy(() -> service.processTransaction(model))
@@ -85,7 +89,7 @@ public class TransactionServiceTest {
 
         // Then
         verify(outboxRepository, never()).saveAndFlush(any());
-        verify(transactionRepository, times(1)).saveAndFlush(model);
+        verify(transactionRepository, times(1)).saveAndFlush(any());
     }
 
 

@@ -1,6 +1,6 @@
 package com.aml_service.repository;
 
-import com.aml_service.model.TransactionOutbox;
+import com.aml_service.model.TransactionOutboxEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Repository
-public interface OutboxRepository extends JpaRepository<TransactionOutbox, String> {
+public interface OutboxRepository extends JpaRepository<TransactionOutboxEntity, String> {
     @Query(value = """
                     SELECT * FROM transaction_outbox o
                     WHERE o.status = :status
@@ -19,7 +19,7 @@ public interface OutboxRepository extends JpaRepository<TransactionOutbox, Strin
                     LIMIT :limit
                     FOR UPDATE SKIP LOCKED
             """, nativeQuery = true)
-    List<TransactionOutbox> findAndLockBatch(
+    List<TransactionOutboxEntity> findAndLockBatch(
             @Param("status") String status,
             @Param("limit") int limit
     );

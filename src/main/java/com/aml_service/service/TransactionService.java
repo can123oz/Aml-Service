@@ -1,7 +1,8 @@
 package com.aml_service.service;
 
 import com.aml_service.model.Transaction;
-import com.aml_service.model.TransactionOutbox;
+import com.aml_service.model.TransactionEntity;
+import com.aml_service.model.TransactionOutboxEntity;
 import com.aml_service.repository.OutboxRepository;
 import com.aml_service.repository.TransactionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,17 +35,17 @@ public class TransactionService {
             // Simulate transaction processing with a provider or internal calculation.
             Thread.sleep(2000);
 
-            Transaction trxEntity = transactionRepository.saveAndFlush(transaction);
-            TransactionOutbox outbox = new TransactionOutbox(trxEntity.getId(), mapper.writeValueAsString(trxEntity));
+            TransactionEntity trxEntity = transactionRepository.saveAndFlush(transaction.toEntity());
+            TransactionOutboxEntity outbox = new TransactionOutboxEntity(trxEntity.getId(), mapper.writeValueAsString(trxEntity));
 
             outboxRepository.saveAndFlush(outbox);
 
             logger.info("{} Processed transaction {}", prefix, trxEntity.getId());
         } catch (JsonProcessingException e) {
-            logger.error("{} Failed to serialize transaction {}", prefix, transaction.getId());
+            logger.error("{} Failed to serialize transaction {}", prefix, transaction.id());
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
-            logger.error("{} Failed to process transaction {}", prefix, transaction.getId());
+            logger.error("{} Failed to process transaction {}", prefix, transaction.id());
             throw new RuntimeException(e);
         }
     }

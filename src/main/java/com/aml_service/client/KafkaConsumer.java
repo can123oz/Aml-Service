@@ -2,9 +2,9 @@ package com.aml_service.client;
 
 import com.aml_service.exception.ValidationException;
 import com.aml_service.model.Transaction;
+import com.aml_service.model.TransactionEntity;
 import com.aml_service.model.TransactionType;
 import com.aml_service.service.TransactionService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -28,14 +28,11 @@ public class KafkaConsumer {
 
     final String prefix = "[Consumer]";
     private final Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
-    private final ObjectMapper mapper;
     private final Validator validator;
     private final TransactionService service;
 
-    public KafkaConsumer(ObjectMapper mapper,
-                         Validator validator,
+    public KafkaConsumer(Validator validator,
                          TransactionService service) {
-        this.mapper = mapper;
         this.validator = validator;
         this.service = service;
     }
@@ -53,7 +50,7 @@ public class KafkaConsumer {
 
             logger.info("{} Message received the process will start: {}", prefix, trx);
 
-            if (!TransactionType.OUTBOUND.name().equalsIgnoreCase(trx.getType())) {
+            if (!TransactionType.OUTBOUND.name().equalsIgnoreCase(trx.type())) {
                 // just to simulate dead letter queue
                 throw new RuntimeException();
                 // return;
@@ -76,6 +73,7 @@ public class KafkaConsumer {
                                      Acknowledgment acknowledgment,
                                      @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         logger.info("Event on dlt topic={}, transaction={}", topic, transaction);
+        // Can make error handling
         acknowledgment.acknowledge();
     }
 

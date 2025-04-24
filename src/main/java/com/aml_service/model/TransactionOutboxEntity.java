@@ -6,14 +6,11 @@ import lombok.Setter;
 
 import java.util.Date;
 
-import static com.aml_service.model.Constants.PENDING;
-import static com.aml_service.model.Constants.PROCESSED;
-
 @Entity
 @Table(name = "transaction_outbox")
 @Getter
 @Setter
-public class TransactionOutbox {
+public class TransactionOutboxEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -31,16 +28,16 @@ public class TransactionOutbox {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Date createdAt;
 
-    public TransactionOutbox(String transactionId, String event) {
+    public TransactionOutboxEntity(String transactionId, String event) {
         this.transactionId = transactionId;
         this.event = event;
-        this.status = PENDING;
+        this.status = TransactionStates.PENDING.name();
     }
 
-    public TransactionOutbox() {}
+    public TransactionOutboxEntity() {}
 
-    public void processTransaction() {
-        this.status = PROCESSED;
+    public synchronized void processTransaction() {
+        this.status = TransactionStates.PROCESSED.name();
     }
 
     @PrePersist

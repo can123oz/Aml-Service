@@ -1,7 +1,8 @@
 package com.aml_service.service;
 
 import com.aml_service.client.KafkaProducer;
-import com.aml_service.model.TransactionOutbox;
+import com.aml_service.model.TransactionOutboxEntity;
+import com.aml_service.model.TransactionStates;
 import com.aml_service.repository.OutboxRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-
-import static com.aml_service.model.Constants.*;
 
 @Component
 public class OutboxProcessor {
@@ -39,21 +38,21 @@ public class OutboxProcessor {
     @Transactional(timeout = 600)
     @Scheduled(fixedDelay = 20000)
     public void processOutbox() {
-        List<TransactionOutbox> batch = outboxRepository.findAndLockBatch(PENDING, OUTBOX_BATCH_SIZE);
+        List<TransactionOutboxEntity> batch = outboxRepository.findAndLockBatch(TransactionStates.PENDING.name(), OUTBOX_BATCH_SIZE);
         logger.info("{} Processing outbox size: {}", prefix, batch.size());
 
         if (batch.isEmpty()) {
             return;
         }
 
-        for (TransactionOutbox outbox : batch) {
+        for (TransactionOutboxEntity outbox : batch) {
             try {
                 producer.publish(outbox.getEvent());
                 outbox.processTransaction();
             } catch (Exception e) {
                 logger.error("{} Failed to publish event {}, exception: {}",
                         prefix, outbox.getId(), e.toString());
-                outbox.setStatus(FAILED);
+                outbox.setStatus(TransactionStates.FAILED.name());
             }
         }
 
@@ -64,6 +63,6 @@ public class OutboxProcessor {
     @Transactional
     public void deleteOldProcessedOutbox() {
         int deleted = outboxRepository.deleteOldProcessed(Instant.now().minus(Duration.ofDays(outboxRetentionDays)));
-        logger.info("Deleted {} old processed outbox rows", deleted);
+        logger.info("{} Deleted {} old processed outbox rows", prefix, deleted);
     }
 }
