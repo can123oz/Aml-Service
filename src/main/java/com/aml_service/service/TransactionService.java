@@ -1,8 +1,7 @@
 package com.aml_service.service;
 
-import com.aml_service.model.Transaction;
-import com.aml_service.model.TransactionEntity;
-import com.aml_service.model.TransactionOutboxEntity;
+import com.aml_service.exception.TransactionNotFoundException;
+import com.aml_service.model.*;
 import com.aml_service.repository.OutboxRepository;
 import com.aml_service.repository.TransactionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class TransactionService {
@@ -35,7 +36,7 @@ public class TransactionService {
             // Simulate transaction processing with a provider or internal calculation.
             Thread.sleep(2000);
 
-            TransactionEntity trxEntity = transactionRepository.saveAndFlush(transaction.toEntity());
+            TransactionEntity trxEntity = transactionRepository.saveAndFlush(transaction.toEntity(TransactionStates.PASS));
             TransactionOutboxEntity outbox = new TransactionOutboxEntity(trxEntity.getId(), mapper.writeValueAsString(trxEntity));
 
             outboxRepository.saveAndFlush(outbox);
@@ -48,5 +49,15 @@ public class TransactionService {
             logger.error("{} Failed to process transaction {}", prefix, transaction.id());
             throw new RuntimeException(e);
         }
+    }
+
+    public TransactionResponse getTransaction(String id) {
+        return transactionRepository.findById(id)
+                .map(trx -> new TransactionResponse(
+                        trx.getId(),
+                        trx.getStatus(),
+                        trx.getAmlResult()
+                ))
+                .orElseThrow(() -> new TransactionNotFoundException(id));
     }
 }

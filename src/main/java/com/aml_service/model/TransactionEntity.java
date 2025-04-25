@@ -31,14 +31,18 @@ public class TransactionEntity {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "aml_result")
+    private String amlResult;
+
     public TransactionEntity() {
     }
 
-    public TransactionEntity(String type, BigDecimal amount, String currency, String status) {
+    public TransactionEntity(String type, BigDecimal amount, String currency, String status, String amlResult) {
         this.type = type;
         this.amount = amount;
         this.currency = currency;
         this.status = status;
+        this.amlResult = amlResult;
     }
 
     @Override

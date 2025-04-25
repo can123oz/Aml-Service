@@ -10,7 +10,7 @@ public record Transaction(String id,
                           @Min(value = 0) BigDecimal amount,
                           @NotNull String currency,
                           String status) {
-    public TransactionEntity toEntity() {
-        return new TransactionEntity(type, amount, currency, status);
+    public TransactionEntity toEntity(TransactionStates amlResult) {
+        return new TransactionEntity(type, amount, currency, status, amlResult.name());
     }
 }

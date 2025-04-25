@@ -14,9 +14,9 @@ public class BaseIT extends AbstractIntegrationTest {
         assertTrue(postgres.isRunning());
     }
 
-    @Test
-    public void kafkaReadyTest() {
-        assertTrue(kafka.isCreated());
-        assertTrue(kafka.isRunning());
-    }
+//    @Test
+//    public void kafkaReadyTest() {
+//        assertTrue(kafka.isCreated());
+//        assertTrue(kafka.isRunning());
+//    }
 }

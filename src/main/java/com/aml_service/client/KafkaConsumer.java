@@ -1,5 +1,6 @@
 package com.aml_service.client;
 
+import com.aml_service.exception.TrxOutboundException;
 import com.aml_service.exception.ValidationException;
 import com.aml_service.model.Transaction;
 import com.aml_service.model.TransactionEntity;
@@ -40,7 +41,7 @@ public class KafkaConsumer {
     @RetryableTopic(attempts = "4",
             kafkaTemplate = "retryableTopicKafkaTemplate",
             dltStrategy = DltStrategy.FAIL_ON_ERROR,
-            exclude = {ValidationException.class})
+            exclude = {ValidationException.class, TrxOutboundException.class})
     @KafkaListener(topics = "${kafka.inbound-topic}",
             groupId = "${kafka.group-id}",
             containerFactory = "kafkaListenerContainerFactory")
@@ -52,7 +53,7 @@ public class KafkaConsumer {
 
             if (!TransactionType.OUTBOUND.name().equalsIgnoreCase(trx.type())) {
                 // just to simulate dead letter queue
-                throw new RuntimeException();
+                throw new TrxOutboundException("Trx must be outbound");
                 // return;
             }
 
@@ -62,6 +63,8 @@ public class KafkaConsumer {
         } catch (ValidationException validationException) {
             logger.error("{} Validation failed, no acknowledgment given for message: {}", prefix, trx);
             throw validationException;
+        } catch (TrxOutboundException outboundException) {
+            throw outboundException;
         } catch (Exception e) {
             logger.error("{} Error, no acknowledgment given for message: {}", prefix, trx);
             throw new RuntimeException(e);

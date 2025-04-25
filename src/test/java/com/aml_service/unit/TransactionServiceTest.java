@@ -3,6 +3,7 @@ package com.aml_service.unit;
 import com.aml_service.model.Transaction;
 import com.aml_service.model.TransactionEntity;
 import com.aml_service.model.TransactionOutboxEntity;
+import com.aml_service.model.TransactionStates;
 import com.aml_service.repository.OutboxRepository;
 import com.aml_service.repository.TransactionRepository;
 import com.aml_service.service.TransactionService;
@@ -52,7 +53,7 @@ public class TransactionServiceTest {
         // Given
         String id = "123";
         Transaction model = new Transaction(id, "OUTBOUND", BigDecimal.TEN, "EUR", "PENDING");
-        TransactionEntity entity = model.toEntity();
+        TransactionEntity entity = model.toEntity(TransactionStates.PROCESSED);
         entity.setId(id);
         String transactionString = entity.toString();
         TransactionOutboxEntity outbox = new TransactionOutboxEntity(id, transactionString);
@@ -77,7 +78,7 @@ public class TransactionServiceTest {
     public void shouldJsonProcessingException() throws JsonProcessingException {
         // Given
         Transaction model = new Transaction("1", "OUTBOUND", BigDecimal.TEN, "EUR", "PENDING");
-        TransactionEntity entity = model.toEntity();
+        TransactionEntity entity = model.toEntity(TransactionStates.PROCESSED);
         entity.setId("id");
 
         // When

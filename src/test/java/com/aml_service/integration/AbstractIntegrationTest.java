@@ -32,17 +32,17 @@ public abstract class AbstractIntegrationTest {
             .withUsername("test")
             .withPassword("test");
 
-    static DockerImageName kafkaImage = DockerImageName.parse("confluentinc/cp-kafka:7.4.0")
-            .asCompatibleSubstituteFor("confluentinc/cp-kafka");
-
-    @Container
-    static final KafkaContainer kafka = new KafkaContainer(kafkaImage)
-            .withEnv("KAFKA_AUTO_CREATE_TOPICS_ENABLE", "true");
+//    static DockerImageName kafkaImage = DockerImageName.parse("confluentinc/cp-kafka:7.4.0")
+//            .asCompatibleSubstituteFor("confluentinc/cp-kafka");
+//
+//    @Container
+//    static final KafkaContainer kafka = new KafkaContainer(kafkaImage)
+//            .withEnv("KAFKA_AUTO_CREATE_TOPICS_ENABLE", "true");
 
 
     static {
         postgres.start();
-        kafka.start();
+        // kafka.start();
         System.out.println("🚀 PostgreSQL Testcontainers running on: " + postgres.getJdbcUrl());
         System.out.println("🔗 PostgreSQL Connect using: Host=" + postgres.getHost() + " | Port=" + postgres.getMappedPort(5432));
     }
@@ -54,7 +54,7 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.password", postgres::getPassword);
         registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
 
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+        // registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
 

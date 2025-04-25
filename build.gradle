@@ -1,7 +1,9 @@
 plugins {
 	id 'java'
+	id 'groovy'
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.cloud.contract' version "4.2.1"
 }
 
 group = 'com'
@@ -42,8 +44,26 @@ dependencies {
 	testImplementation 'org.testcontainers:testcontainers:1.20.6'
 	testImplementation 'org.testcontainers:junit-jupiter:1.20.6'
 	testImplementation 'org.awaitility:awaitility'
+
+	// Contract Tests
+	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+	// Optional: for JSONPath or REST-assured DSL use
+	testImplementation 'com.jayway.jsonpath:json-path'
+	testImplementation 'io.rest-assured:rest-assured'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+contracts {
+	contractsDslDir = file("src/test/resources/contracts")
+	baseClassForTests = 'com.aml_service.contract.ContractVerifierBase'
+	packageWithBaseClasses = 'com.aml_service.contract'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.1"
+	}
 }
