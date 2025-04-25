@@ -7,14 +7,14 @@ Contract.make {
 
     request {
         method GET()
-        url("/api/v1/transactions?id=db4647dd-812b-4cb0-a0f8-533a89a8903b")
+        url("/api/v1/transactions?reference=test-reference")
     }
 
     response {
         status 200
         body([
-                id       : "db4647dd-812b-4cb0-a0f8-533a89a8903b",
-                amlResult: "SUCCESS",
+                reference       : "test-reference",
+                amlResult: "PASS",
                 status   : "TEST"
         ])
         headers {

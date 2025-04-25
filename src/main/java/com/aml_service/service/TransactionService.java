@@ -51,13 +51,13 @@ public class TransactionService {
         }
     }
 
-    public TransactionResponse getTransaction(String id) {
-        return transactionRepository.findById(id)
+    public TransactionResponse getTransaction(String reference) {
+        return transactionRepository.findByReference(reference)
                 .map(trx -> new TransactionResponse(
-                        trx.getId(),
+                        trx.getReference(),
                         trx.getStatus(),
                         trx.getAmlResult()
                 ))
-                .orElseThrow(() -> new TransactionNotFoundException(id));
+                .orElseThrow(() -> new TransactionNotFoundException(reference));
     }
 }

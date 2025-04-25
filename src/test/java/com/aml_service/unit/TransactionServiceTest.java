@@ -52,7 +52,8 @@ public class TransactionServiceTest {
     public void shouldSuccessfulProcessTransaction() throws JsonProcessingException {
         // Given
         String id = "123";
-        Transaction model = new Transaction(id, "OUTBOUND", BigDecimal.TEN, "EUR", "PENDING");
+        Transaction model = new Transaction(id, "OUTBOUND", "test-reference",
+                BigDecimal.TEN, "EUR", "PENDING");
         TransactionEntity entity = model.toEntity(TransactionStates.PROCESSED);
         entity.setId(id);
         String transactionString = entity.toString();
@@ -77,7 +78,8 @@ public class TransactionServiceTest {
     @Test
     public void shouldJsonProcessingException() throws JsonProcessingException {
         // Given
-        Transaction model = new Transaction("1", "OUTBOUND", BigDecimal.TEN, "EUR", "PENDING");
+        Transaction model = new Transaction("1", "OUTBOUND", "test-reference",
+                BigDecimal.TEN, "EUR", "PENDING");
         TransactionEntity entity = model.toEntity(TransactionStates.PROCESSED);
         entity.setId("id");
 

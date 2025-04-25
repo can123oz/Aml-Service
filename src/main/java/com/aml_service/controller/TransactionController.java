@@ -20,7 +20,7 @@ public class TransactionController {
 
     @GetMapping
     @Operation(summary = "For Aml Result Fetching Manually Only", description = "Dashboards can use it.")
-    public ResponseEntity<TransactionResponse> getTransaction(String id) {
-        return ResponseEntity.ok(service.getTransaction(id));
+    public ResponseEntity<TransactionResponse> getTransaction(String reference) {
+        return ResponseEntity.ok(service.getTransaction(reference));
     }
 }

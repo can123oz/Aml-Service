@@ -17,6 +17,9 @@ public class TransactionEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "reference")
+    private String reference;
+
     @Column(name = "type")
     private String type;
 
@@ -37,8 +40,10 @@ public class TransactionEntity {
     public TransactionEntity() {
     }
 
-    public TransactionEntity(String type, BigDecimal amount, String currency, String status, String amlResult) {
+    public TransactionEntity(String type, String reference, BigDecimal amount,
+                             String currency, String status, String amlResult) {
         this.type = type;
+        this.reference = reference;
         this.amount = amount;
         this.currency = currency;
         this.status = status;
